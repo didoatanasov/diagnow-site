@@ -1,0 +1,59 @@
+---
+import { copy, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = copy[Astro.props.lang].safety;
+---
+
+<section class="section" aria-labelledby="safety-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="safety-title">{t.heading}</h2>
+    </div>
+    <dl>
+      {
+        t.points.map((p) => (
+          <div>
+            <dt>{p.title}</dt>
+            <dd>{p.text}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  dl {
+    display: grid;
+    gap: 2rem 3rem;
+    margin: 0;
+  }
+
+  @media (min-width: 48rem) {
+    dl {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  dl > div {
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--mint);
+    max-width: var(--measure);
+  }
+
+  dt {
+    font-size: var(--step-1);
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 0.4rem;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--muted);
+  }
+</style>

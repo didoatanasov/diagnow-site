@@ -1,0 +1,157 @@
+---
+import { copy, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = copy[lang].hero;
+
+// Illustrative systolic readings (mmHg) over ~6 weeks; not patient data.
+const readings = [162, 158, 160, 155, 153, 150, 149, 145, 142, 139, 137, 134, 132, 130, 131, 129];
+const bandTop = 135; // upper limit of the illustrative target range
+const bandBottom = 120;
+const yMax = 170;
+const yMin = 110;
+const W = 480;
+const H = 300;
+const pad = 28;
+const y = (v: number) => pad + ((yMax - v) / (yMax - yMin)) * (H - 2 * pad);
+const x = (i: number) => pad + 8 + (i / (readings.length - 1)) * (W - 2 * pad - 16);
+const dots = readings.map((v, i) => ({ cx: x(i), cy: y(v), inRange: v <= bandTop, i }));
+---
+
+<section class="hero">
+  <div class="wrap grid">
+    <div class="copy">
+      <h1>{t.title}</h1>
+      <p class="lead">{t.lead}</p>
+      <div class="actions">
+        <a class="button" href="#contact" data-role="patient">{t.ctaPrimary}</a>
+        <a class="button button--ghost" href="#contact" data-role="gp">{t.ctaSecondary}</a>
+      </div>
+      <p class="stage">{t.stage}</p>
+    </div>
+
+    <figure class="chart">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t.chartLabel}>
+        <rect
+          class="band"
+          x={pad}
+          y={y(bandTop)}
+          width={W - 2 * pad}
+          height={y(bandBottom) - y(bandTop)}
+          rx={(y(bandBottom) - y(bandTop)) / 2}
+        />
+        <text class="band-label" x={W - pad - 14} y={y(bandBottom) + 26} text-anchor="end">{t.chartBand}</text>
+        {
+          dots.map((d) => (
+            <circle
+              class:list={['dot', d.inRange ? 'in' : 'out']}
+              cx={d.cx}
+              cy={d.cy}
+              r="9"
+              style={`--i:${d.i}`}
+            />
+          ))
+        }
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: clamp(3.5rem, 9vw, 7rem) clamp(4rem, 9vw, 7rem);
+  }
+
+  .grid {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+    align-items: center;
+  }
+
+  @media (min-width: 60rem) {
+    .grid {
+      grid-template-columns: 1.05fr 1fr;
+    }
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    max-width: 12ch;
+  }
+
+  .lead {
+    margin-top: 1.5rem;
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .stage {
+    margin-top: 1.5rem;
+    max-width: var(--measure);
+    font-size: 1rem;
+    color: var(--muted);
+  }
+
+  .chart {
+    margin: 0;
+  }
+
+  .band {
+    fill: var(--mint);
+    fill-opacity: 0.35;
+  }
+
+  .band-label {
+    font: 500 15px var(--font);
+    fill: var(--teal);
+  }
+
+  .dot.out {
+    fill: var(--amber);
+  }
+
+  .dot.in {
+    fill: var(--teal);
+  }
+
+  /* The one orchestrated moment: readings arrive one by one and settle. */
+  @media (prefers-reduced-motion: no-preference) {
+    .dot {
+      animation: arrive 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      animation-delay: calc(0.25s + var(--i) * 85ms);
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .band,
+    .band-label {
+      animation: fade 0.8s ease-out both;
+    }
+
+    @keyframes arrive {
+      from {
+        opacity: 0;
+        transform: translateY(-14px) scale(0.6);
+      }
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+      }
+    }
+  }
+</style>

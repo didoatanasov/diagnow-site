@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import { copy } from '../i18n';
+
+const bg = copy.bg.notFound;
+const en = copy.en.notFound;
+---
+
+<Base lang="bg" title={bg.title} noindex>
+  <section class="section">
+    <div class="wrap text">
+      <h1>{bg.title}</h1>
+      <p>{bg.text}</p>
+      <p><a href="/">{bg.back}</a></p>
+      <h2 lang="en">{en.title}</h2>
+      <p lang="en">{en.text} <a href="/en/">{en.back}</a></p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .text {
+    display: grid;
+    gap: 1rem;
+    max-width: var(--measure);
+  }
+
+  h1 {
+    font-size: var(--step-3);
+  }
+
+  h2 {
+    margin-top: 2rem;
+    font-size: var(--step-1);
+  }
+</style>

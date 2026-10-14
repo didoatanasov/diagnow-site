@@ -1,0 +1,93 @@
+---
+import { copy, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = copy[Astro.props.lang].who;
+---
+
+<section id="who" class="section section--mist" aria-labelledby="who-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="who-title">{t.heading}</h2>
+    </div>
+    <div class="groups">
+      {
+        t.groups.map((g) => (
+          <article id={g.id} aria-labelledby={`${g.id}-title`}>
+            <h3 id={`${g.id}-title`}>{g.title}</h3>
+            <p>{g.text}</p>
+            <ul>
+              {g.points.map((point) => (
+                <li>{point}</li>
+              ))}
+            </ul>
+            <a class="button button--ghost" href="#contact" data-role={g.role}>
+              {g.cta}
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .groups {
+    display: grid;
+    gap: 3rem 2.5rem;
+  }
+
+  @media (min-width: 60rem) {
+    .groups {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  article {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  h3 {
+    font-size: var(--step-2);
+  }
+
+  p {
+    color: var(--muted);
+  }
+
+  ul {
+    margin: 0 0 0.5rem;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+    font-size: 1rem;
+  }
+
+  li {
+    position: relative;
+    padding-left: 1.4rem;
+  }
+
+  /* Bullet = an in-range reading from the logo. */
+  li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+
+  .button {
+    margin-top: auto;
+  }
+</style>

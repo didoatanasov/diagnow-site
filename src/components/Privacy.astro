@@ -1,0 +1,162 @@
+---
+// DRAFT privacy policy. Must be reviewed by a lawyer before launch.
+// Replace every [placeholder]. When finalised, remove the draft notice below.
+import Base from '../layouts/Base.astro';
+import type { Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const bg = lang === 'bg';
+---
+
+<Base lang={lang} page="privacy" title={bg ? 'Политика за поверителност' : 'Privacy policy'}>
+  <article class="section">
+    <div class="wrap text">
+      <p class="draft">
+        {
+          bg
+            ? 'Чернова. Тази политика се преглежда от юрист и може да бъде променена преди старта.'
+            : 'Draft. This policy is being reviewed by a lawyer and may change before launch.'
+        }
+      </p>
+
+      {
+        bg ? (
+          <>
+            <h1>Политика за поверителност</h1>
+            <p>Последна промяна: [дата]</p>
+
+            <h2>Кои сме ние</h2>
+            <p>
+              Администратор на личните данни е [Име на дружеството] ООД, ЕИК [номер], със седалище [адрес], България
+              («diagnow.ai», «ние»). Връзка с нас: <a href="mailto:hello@diagnow.ai">hello@diagnow.ai</a>.
+            </p>
+
+            <h2>Какви данни събираме през този сайт</h2>
+            <ul>
+              <li>Данните от формата за контакт: име, имейл, в какво качество ни пишете, организация и съобщение.</li>
+              <li>Дали сте поискали да получавате новини.</li>
+              <li>Технически данни, нужни за защита от злоупотреби (IP адрес и сигнали от браузъра при проверката за сигурност).</li>
+            </ul>
+            <p>Не използваме бисквитки за анализ или реклама. Моля, не изпращайте здравна информация през формата.</p>
+
+            <h2>Защо и на какво основание</h2>
+            <ul>
+              <li>За да отговорим на съобщението ви: вашето съгласие и предприемане на стъпки по ваше искане (чл. 6, ал. 1, б. „а“ и „б“ от ОРЗД).</li>
+              <li>За да ви изпращаме новини: само с изричното ви съгласие, потвърдено по имейл (чл. 6, ал. 1, б. „а“).</li>
+              <li>За защита на сайта от спам и злоупотреби: законен интерес (чл. 6, ал. 1, б. „е“).</li>
+            </ul>
+
+            <h2>С кого споделяме данните</h2>
+            <ul>
+              <li>Cloudflare, Inc.: хостинг на сайта и проверка за сигурност (Turnstile).</li>
+              <li>
+                Intuit Inc. (Mailchimp), САЩ: съхранение на контактите и изпращане на новини. Предаването на данни към САЩ
+                се извършва с гаранциите, изисквани от ОРЗД [да се уточни: стандартни договорни клаузи и/или Рамката за
+                поверителност на данните ЕС–САЩ].
+              </li>
+            </ul>
+            <p>Не продаваме лични данни и не ги използваме за реклама.</p>
+
+            <h2>Колко дълго пазим данните</h2>
+            <p>
+              Съобщенията от формата пазим до [24 месеца] след последния ни контакт. Данните за абонамента за новини пазим,
+              докато не се отпишете.
+            </p>
+
+            <h2>Вашите права</h2>
+            <p>
+              Имате право на достъп, коригиране, изтриване, ограничаване и преносимост на данните си, право на възражение и
+              право да оттеглите съгласието си по всяко време. Пишете ни на
+              <a href="mailto:hello@diagnow.ai">hello@diagnow.ai</a>. Можете да подадете жалба до Комисията за защита на
+              личните данни (<a href="https://www.cpdp.bg">www.cpdp.bg</a>).
+            </p>
+          </>
+        ) : (
+          <>
+            <h1>Privacy policy</h1>
+            <p>Last updated: [date]</p>
+
+            <h2>Who we are</h2>
+            <p>
+              The data controller is [Company name] OOD, UIC [number], registered at [address], Bulgaria ("diagnow.ai",
+              "we"). Contact: <a href="mailto:hello@diagnow.ai">hello@diagnow.ai</a>.
+            </p>
+
+            <h2>What we collect on this website</h2>
+            <ul>
+              <li>Contact form details: name, email, who you are writing as, organisation and message.</li>
+              <li>Whether you asked to receive updates.</li>
+              <li>Technical data needed to prevent abuse (IP address and browser signals used by the security check).</li>
+            </ul>
+            <p>We do not use analytics or advertising cookies. Please do not send health information through the form.</p>
+
+            <h2>Why, and on what legal basis</h2>
+            <ul>
+              <li>To answer your message: your consent and steps taken at your request (GDPR Art. 6(1)(a) and (b)).</li>
+              <li>To send you updates: only with your explicit consent, confirmed by email (Art. 6(1)(a)).</li>
+              <li>To protect the website from spam and abuse: legitimate interest (Art. 6(1)(f)).</li>
+            </ul>
+
+            <h2>Who we share data with</h2>
+            <ul>
+              <li>Cloudflare, Inc.: website hosting and security check (Turnstile).</li>
+              <li>
+                Intuit Inc. (Mailchimp), USA: storing contacts and sending updates. Transfers to the USA use the safeguards
+                required by the GDPR [to confirm: Standard Contractual Clauses and/or the EU–US Data Privacy Framework].
+              </li>
+            </ul>
+            <p>We do not sell personal data or use it for advertising.</p>
+
+            <h2>How long we keep data</h2>
+            <p>
+              We keep contact form messages for up to [24 months] after our last contact with you. Newsletter data is kept
+              until you unsubscribe.
+            </p>
+
+            <h2>Your rights</h2>
+            <p>
+              You have the right to access, correct, delete, restrict and port your data, to object, and to withdraw your
+              consent at any time. Write to <a href="mailto:hello@diagnow.ai">hello@diagnow.ai</a>. You can complain to the
+              Bulgarian Commission for Personal Data Protection (<a href="https://www.cpdp.bg/en/">www.cpdp.bg</a>).
+            </p>
+          </>
+        )
+      }
+    </div>
+  </article>
+</Base>
+
+<style>
+  .text {
+    max-width: 44rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  h1 {
+    font-size: var(--step-3);
+  }
+
+  h2 {
+    margin-top: 1.5rem;
+    font-size: var(--step-1);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .draft {
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--amber);
+    background: var(--mist);
+    font-size: 1rem;
+  }
+</style>

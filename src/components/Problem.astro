@@ -1,0 +1,68 @@
+---
+import { copy, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = copy[Astro.props.lang].problem;
+---
+
+<section class="section section--mist" aria-labelledby="problem-title">
+  <div class="wrap grid">
+    <div class="text">
+      <h2 id="problem-title">{t.heading}</h2>
+      {t.text.map((p) => <p>{p}</p>)}
+    </div>
+    <figure class="fact">
+      <p class="number">{t.stat}</p>
+      <p>{t.statText}</p>
+      <figcaption>{t.statSource}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 3rem;
+  }
+
+  @media (min-width: 60rem) {
+    .grid {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: end;
+    }
+  }
+
+  .text {
+    display: grid;
+    gap: 1.25rem;
+    max-width: var(--measure);
+  }
+
+  .text h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .fact {
+    margin: 0;
+    padding-left: 1.5rem;
+    border-left: 4px solid var(--amber);
+    max-width: 24rem;
+  }
+
+  .number {
+    font-size: var(--step-4);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+
+  figcaption {
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+</style>

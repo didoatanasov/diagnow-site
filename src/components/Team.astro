@@ -1,0 +1,121 @@
+---
+import { copy, type Lang } from '../i18n';
+import { team } from '../data/team';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = copy[lang];
+
+const initials = (name: string) =>
+  name
+    .replace(/[[\]]/g, '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+---
+
+<section id="team" class="section section--mist" aria-labelledby="team-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="team-title">{t.team.heading}</h2>
+      <p>{t.team.intro}</p>
+    </div>
+    <ul class="people">
+      {
+        team.map((person) => (
+          <li>
+            {person.photo ? (
+              <img src={person.photo} alt="" width="160" height="160" loading="lazy" />
+            ) : (
+              <span class="photo-placeholder" aria-hidden="true">
+                {initials(person.name)}
+              </span>
+            )}
+            <h3>{person.name}</h3>
+            <p class="role">{person.role[lang]}</p>
+            <p class="bio">{person.bio[lang]}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div id="investors" class="investors">
+      <h2>{t.investors.heading}</h2>
+      <p>{t.investors.text}</p>
+      <a class="button" href="#contact" data-role="investor">{t.investors.cta}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .people {
+    display: grid;
+    gap: 2.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 48rem) {
+    .people {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  img,
+  .photo-placeholder {
+    width: 7.5rem;
+    height: 7.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1.25rem;
+  }
+
+  .photo-placeholder {
+    display: grid;
+    place-items: center;
+    background: var(--paper);
+    border: 2px dashed var(--line);
+    color: var(--muted);
+    font-size: var(--step-2);
+    font-weight: 600;
+  }
+
+  .role {
+    margin-top: 0.25rem;
+    color: var(--teal);
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  .bio {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 28rem;
+  }
+
+  .investors {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+    max-width: var(--measure);
+    margin-top: clamp(4rem, 8vw, 6rem);
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .investors h2 {
+    font-size: var(--step-2);
+  }
+
+  .investors p {
+    color: var(--muted);
+  }
+</style>

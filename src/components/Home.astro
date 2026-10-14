@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from './Hero.astro';
+import Problem from './Problem.astro';
+import Steps from './Steps.astro';
+import Audiences from './Audiences.astro';
+import Safety from './Safety.astro';
+import Team from './Team.astro';
+import ContactForm from './ContactForm.astro';
+import type { Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<Base lang={lang}>
+  <Hero lang={lang} />
+  <Problem lang={lang} />
+  <Steps lang={lang} />
+  <Audiences lang={lang} />
+  <Safety lang={lang} />
+  <Team lang={lang} />
+  <ContactForm lang={lang} />
+</Base>

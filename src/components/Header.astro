@@ -1,0 +1,90 @@
+---
+import { copy, localePath, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  page: '' | 'privacy';
+}
+
+const { lang, page } = Astro.props;
+const t = copy[lang];
+const other: Lang = lang === 'bg' ? 'en' : 'bg';
+const home = localePath(lang);
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href={home}>
+      <img src="/logo.svg" alt="diagnow.ai" width="183" height="32" />
+    </a>
+    <nav aria-label={lang === 'bg' ? 'Основна навигация' : 'Main navigation'}>
+      <ul>
+        <li class="nav-link"><a href={`${home}#how`}>{t.nav.how}</a></li>
+        <li class="nav-link"><a href={`${home}#who`}>{t.nav.who}</a></li>
+        <li class="nav-link"><a href={`${home}#team`}>{t.nav.team}</a></li>
+        <li>
+          <a class="lang" href={localePath(other, page)} hreflang={other} lang={other}>
+            <span aria-hidden="true">{t.nav.switchShort}</span>
+            <span class="visually-hidden">{t.nav.switchLabel}</span>
+          </a>
+        </li>
+        <li><a class="button button--small" href={`${home}#contact`}>{t.nav.contact}</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 4.5rem;
+  }
+
+  .brand img {
+    height: 2rem;
+    width: auto;
+  }
+
+  ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 2.5vw, 2rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a:not(.button) {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 1rem;
+  }
+
+  nav a:not(.button):hover {
+    color: var(--teal);
+    text-decoration: underline;
+  }
+
+  .lang {
+    font-weight: 600;
+  }
+
+  .button--small {
+    min-height: 2.5rem;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 48rem) {
+    .nav-link {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,63 @@
+---
+import '@fontsource/golos-text/400.css';
+import '@fontsource/golos-text/500.css';
+import '@fontsource/golos-text/600.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { copy, localePath, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  page?: '' | 'privacy';
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { lang, page = '', title, description, noindex = false } = Astro.props;
+const t = copy[lang];
+const site = Astro.site ?? new URL('https://diagnow.ai');
+const canonical = new URL(localePath(lang, page), site).toString();
+const alternates = (['bg', 'en'] as const).map((l) => ({
+  lang: l,
+  href: new URL(localePath(l, page), site).toString(),
+}));
+const pageTitle = title ? `${title} — diagnow.ai` : t.meta.title;
+const pageDescription = description ?? t.meta.description;
+const ogImage = new URL('/og-image.png', site).toString();
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={alternates[0].href} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#14303A" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="diagnow.ai" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === 'bg' ? 'bg_BG' : 'en_GB'} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.skip}</a>
+    <Header lang={lang} page={page} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

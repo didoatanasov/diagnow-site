@@ -1,0 +1,312 @@
+---
+import { copy, localePath, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = copy[lang].contact;
+
+// Public key; set PUBLIC_TURNSTILE_SITE_KEY at build time (see README).
+// Falls back to Cloudflare's "always passes" test key for local development.
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
+
+const messages = JSON.stringify({
+  sending: t.sending,
+  submit: t.submit,
+  success: t.success,
+  successNewsletter: t.successNewsletter,
+  errors: t.errors,
+});
+---
+
+<section id="contact" class="contact" aria-labelledby="contact-title">
+  <div class="wrap grid">
+    <div class="intro">
+      <h2 id="contact-title">{t.heading}</h2>
+      <p>{t.intro}</p>
+      <p class="warning">{t.warning}</p>
+    </div>
+
+    <form id="contact-form" method="post" action="/api/contact" novalidate data-messages={messages}>
+      <input type="hidden" name="lang" value={lang} />
+
+      <!-- Honeypot: hidden from people and screen readers; bots fill it in. -->
+      <div class="hp" aria-hidden="true">
+        <label for="website">Website</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="name">{t.name}</label>
+        <input id="name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="100" />
+      </div>
+
+      <div class="field">
+        <label for="email">{t.email}</label>
+        <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" />
+      </div>
+
+      <div class="field">
+        <label for="role">{t.role}</label>
+        <select id="role" name="role" required>
+          <option value="">{t.rolePlaceholder}</option>
+          {Object.entries(t.roles).map(([value, label]) => <option value={value}>{label}</option>)}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="organisation">{t.organisation}</label>
+        <input id="organisation" name="organisation" type="text" autocomplete="organization" maxlength="150" />
+      </div>
+
+      <div class="field">
+        <label for="message">{t.message}</label>
+        <textarea id="message" name="message" rows="5" maxlength="800"></textarea>
+      </div>
+
+      <div class="check">
+        <input id="consent" name="consent" type="checkbox" value="yes" required />
+        <label for="consent">
+          {t.consent} <a href={localePath(lang, 'privacy')}>{t.consentLink}</a>.
+        </label>
+      </div>
+
+      <div class="check">
+        <input id="newsletter" name="newsletter" type="checkbox" value="yes" />
+        <label for="newsletter">{t.newsletter}</label>
+      </div>
+
+      <div class="cf-turnstile" data-sitekey={siteKey} data-language={lang} data-theme="light"></div>
+
+      <button class="button submit" type="submit">{t.submit}</button>
+
+      <p class="status" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script>
+  type Messages = {
+    sending: string;
+    submit: string;
+    success: string;
+    successNewsletter: string;
+    errors: Record<'validation' | 'captcha' | 'server', string>;
+  };
+
+  declare global {
+    interface Window {
+      turnstile?: { reset: (el?: string | HTMLElement) => void };
+    }
+  }
+
+  const form = document.querySelector<HTMLFormElement>('#contact-form');
+
+  // CTAs elsewhere on the page preselect the "I am" field.
+  document.querySelectorAll<HTMLAnchorElement>('a[data-role]').forEach((link) => {
+    link.addEventListener('click', () => {
+      const select = form?.querySelector<HTMLSelectElement>('#role');
+      if (select && link.dataset.role) select.value = link.dataset.role;
+    });
+  });
+
+  if (form) {
+    const msg = JSON.parse(form.dataset.messages ?? '{}') as Messages;
+    const status = form.querySelector<HTMLElement>('.status')!;
+    const button = form.querySelector<HTMLButtonElement>('.submit')!;
+
+    const markInvalid = (names: string[]) => {
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+      names.forEach((name) => form.querySelector(`[name="${name}"]`)?.setAttribute('aria-invalid', 'true'));
+      form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    };
+
+    const show = (text: string, kind: 'ok' | 'error' | '') => {
+      status.textContent = text;
+      status.dataset.kind = kind;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      // Browser-side check first, using the same rules as the server.
+      const invalid = [...form.querySelectorAll<HTMLInputElement>('input, select, textarea')]
+        .filter((el) => el.name && el.name !== 'website' && !el.checkValidity())
+        .map((el) => el.name);
+      if (invalid.length) {
+        markInvalid(invalid);
+        show(msg.errors.validation, 'error');
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = msg.sending;
+      show('', '');
+
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+        const data = (await res.json()) as { ok: boolean; error?: string; fields?: string[]; newsletter?: boolean };
+
+        if (data.ok) {
+          form.reset();
+          markInvalid([]);
+          show(data.newsletter ? `${msg.success} ${msg.successNewsletter}` : msg.success, 'ok');
+        } else if (data.error === 'validation') {
+          markInvalid(data.fields ?? []);
+          show(msg.errors.validation, 'error');
+        } else if (data.error === 'captcha') {
+          show(msg.errors.captcha, 'error');
+        } else {
+          show(msg.errors.server, 'error');
+        }
+      } catch {
+        show(msg.errors.server, 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = msg.submit;
+        window.turnstile?.reset();
+      }
+    });
+  }
+</script>
+
+<style>
+  .contact {
+    background: var(--ink);
+    color: var(--paper);
+    padding-block: var(--space-section);
+  }
+
+  .grid {
+    display: grid;
+    gap: 3rem;
+  }
+
+  @media (min-width: 60rem) {
+    .grid {
+      grid-template-columns: 1fr 1.25fr;
+      align-items: start;
+    }
+  }
+
+  .intro {
+    display: grid;
+    gap: 1rem;
+    max-width: 28rem;
+  }
+
+  .intro p {
+    color: rgb(255 255 255 / 0.82);
+  }
+
+  .warning {
+    padding-left: 1rem;
+    border-left: 3px solid var(--amber);
+    font-size: 1rem;
+  }
+
+  form {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  label {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  input[type='text'],
+  input[type='email'],
+  select,
+  textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0.9rem;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: 1rem;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  [aria-invalid='true'] {
+    border-color: var(--amber) !important;
+    box-shadow: 0 0 0 3px rgb(232 163 61 / 0.35);
+  }
+
+  .check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .check input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    accent-color: var(--mint);
+  }
+
+  .check label {
+    font-weight: 400;
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  .check a {
+    color: var(--mint);
+  }
+
+  .submit {
+    justify-self: start;
+    background: var(--mint);
+    border-color: var(--mint);
+    color: var(--ink);
+  }
+
+  .submit:hover {
+    background: var(--paper);
+    border-color: var(--paper);
+    color: var(--ink);
+  }
+
+  .submit:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+
+  .status {
+    min-height: 1.5em;
+    font-size: 1rem;
+  }
+
+  .status[data-kind='ok'] {
+    color: var(--mint);
+  }
+
+  .status[data-kind='error'] {
+    color: #ffc979;
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>
